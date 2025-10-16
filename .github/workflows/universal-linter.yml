@@ -21,6 +21,7 @@ jobs:
           APPLY_FIXES: none
           ENABLE: MARKDOWN,YAML
           ENABLE_LINTERS: YAMLLINT,MARKDOWNLINT
+          DISABLE_LINTERS: v8r
           EXCLUDED_DIRECTORIES: level-1
         # uses: megalinter/megalinter-runner-action@v6
         # with:
