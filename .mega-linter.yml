@@ -1,2 +1,2 @@
-MARKDONW_LINTER_RULES:
+MARKDOWN_LINTER_RULES:
   MD047: true  # Files should end with a single newline character
