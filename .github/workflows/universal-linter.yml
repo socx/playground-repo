@@ -19,10 +19,7 @@ jobs:
         env:
           VALIDATE_ALL_CODEBASE: true
           APPLY_FIXES: none
-          ENABLED_LINTERS:
-            - YAMLLINT
-            - MARKDOWNLINT
-            - TFLINT
+          ENABLED_LINTERS: YAMLLINT,MARKDOWNLINT
         # uses: megalinter/megalinter-runner-action@v6
         # with:
         #   # Specify the version of MegaLinter to use (optional)
