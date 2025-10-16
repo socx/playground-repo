@@ -1,0 +1,34 @@
+name: Lint Files with MegaLinter
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [new-branch,main]
+
+jobs:
+  megalinter:
+    name: MegaLinter Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Perform linting with MegaLinter
+        uses: oxsecurity/megalinter@v9
+        env:
+          VALIDATE_ALL_CODEBASE: true
+          APPLY_FIXES: none
+          ENABLED_LINTERS:
+            - YAMLLINT
+            - MARKDOWNLINT
+            - TFLINT
+        # uses: megalinter/megalinter-runner-action@v6
+        # with:
+        #   # Specify the version of MegaLinter to use (optional)
+        #   MEGALINTER_VERSION: "v6.14.0"
+        #   # Enable or disable specific linters (optional)
+        #   ENABLED_LINTERS: "markdownlint,yamllint,tflint,psscriptanalyzer"
+        #   # Additional configuration options can be added here
+        #   # For example, to set the configuration file path:
+        #   # CONFIG_FILE: ".megalinter.yml"
