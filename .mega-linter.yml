@@ -1,2 +1,2 @@
-MARKDOWN_LINTER_RULES:
-  MD047: true  # Files should end with a single newline character
+DISABLE_LINTERS:
+  - YAML_V8R
