@@ -18,4 +18,5 @@ rules:
   comments:
     min-spaces-from-content: 1 # Used to follow prettier standard: https://github.com/prettier/prettier/pull/10926
   new-line-at-end-of-file: disable
-  document-start: disable
+  document-start:
+    present: false
