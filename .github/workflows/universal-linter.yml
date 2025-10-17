@@ -19,7 +19,7 @@ jobs:
         env:
           VALIDATE_ALL_CODEBASE: true
           APPLY_FIXES: none
-          ENABLE: MARKDOWN,YAML
+          ENABLE: MARKDOWN,YAML,TERRAFORM
           ENABLE_LINTERS: MARKDOWN_MARKDOWNLINT,YAML_YAMLLINT
           EXCLUDED_DIRECTORIES: level-2
         # uses: megalinter/megalinter-runner-action@v6
