@@ -34,6 +34,7 @@ env:
   APPLY_FIXES_MODE: pull_request
   APPLY_FIXES_IF_PR: 'true'
   APPLY_FIXES_IF_COMMIT: 'true'
+  APPLY_FIXES_IF: 'true'
   ENABLE: MARKDOWN,YAML,TERRAFORM
   DISABLE_LINTERS: YAML_V8R,YAML_PRETTIER,MARKDOWN_MARKDOWN_TABLE_FORMATTER,TERRAFORM_TERRASCAN,TERRAFORM_TFLINT
 
@@ -119,15 +120,6 @@ jobs:
           path: |
             megalinter-reports
             mega-linter.log
-      # Debugging info
-      - name: Debug env vars
-        if: always()
-        run: |
-          echo "APPLY_FIXES_IF_COMMIT=${APPLY_FIXES_IF_COMMIT}"
-          echo "APPLY_FIXES_IF_PR=${APPLY_FIXES_IF_PR}"
-          echo "has_updated_sources=${{ steps.ml.outputs.has_updated_sources }}"
-          echo "github.event_name=${{ steps.ml.outputs.github.event_name }}"
-          echo "github.event.pull_request.head.repo.full_name=${{ steps.ml.outputs.github.event.pull_request.head.repo.full_name }}"
 
       # Set APPLY_FIXES_IF var for use in future steps
       - name: Set APPLY_FIXES_IF var
@@ -156,6 +148,18 @@ jobs:
             env.APPLY_FIXES_MODE == 'commit' &&
             (!contains(fromJSON('["refs/heads/main", "refs/heads/master"]'), github.ref))
           }}" >> "${GITHUB_ENV}"
+
+      # Debugging info
+      - name: Debug env vars
+        if: always()
+        run: |
+          echo "APPLY_FIXES_IF_COMMIT=${APPLY_FIXES_IF_COMMIT}"
+          echo "APPLY_FIXES_IF_PR=${APPLY_FIXES_IF_PR}"
+          echo "env.APPLY_FIXES_IF=${env.env.APPLY_FIXES_IF}"
+          echo "env.APPLY_FIXES_MODE=${env.APPLY_FIXES_MODE}"
+          echo "has_updated_sources=${{ steps.ml.outputs.has_updated_sources }}"
+          echo "github.event_name=${{ steps.ml.outputs.github.event_name }}"
+          echo "github.event.pull_request.head.repo.full_name=${{ steps.ml.outputs.github.event.pull_request.head.repo.full_name }}"
 
       # Create pull request if applicable
       # (for now works only on PR from same repository, not from forks)
