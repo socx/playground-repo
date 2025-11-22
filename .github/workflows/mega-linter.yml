@@ -35,7 +35,7 @@ env:
   APPLY_FIXES_IF_PR: 'true'
   APPLY_FIXES_IF_COMMIT: 'false'
   ENABLE: MARKDOWN,YAML,TERRAFORM
-  ENABLE_LINTERS: MARKDOWN_MARKDOWNLINT,YAML_YAMLLINT,TERRAFORM_TFLINT
+  DISABLE_LINTERS: YAML_V8R,YAML_PRETTIER,MARKDOWN_MARKDOWN_TABLE_FORMATTER,TERRAFORM_TERRASCAN
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
@@ -83,6 +83,8 @@ jobs:
           #
           # To validate the entire codebase, set to:
           VALIDATE_ALL_CODEBASE: true
+          # Enable Terraform auto-fixes
+          TERRAFORM_TERRAFORM_FMT_AUTO_FIX: true
           #
           # To validate only diff with main, set to:
           # VALIDATE_ALL_CODEBASE: >-
@@ -153,7 +155,11 @@ jobs:
           token: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
           commit-message: "[MegaLinter] Apply linters automatic fixes"
           title: "[MegaLinter] Apply linters automatic fixes"
-          labels: bot
+          labels: automated-pr, megalinter, bot-pr
+          body: |
+            This PR has been automatically created by MegaLinter to apply
+            automatic fixes suggested by linters.
+            Please review the changes and merge if they look good.
 
       - name: Create PR output
         if: env.APPLY_FIXES_IF_PR == 'true'
