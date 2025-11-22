@@ -11,5 +11,5 @@ rule "terraform_unused_declarations" {
 }
 
 rule "terraform_typed_variables" {
-  enabled = false
+  enabled = true
 }
