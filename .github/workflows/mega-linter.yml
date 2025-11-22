@@ -32,8 +32,8 @@ env:
   # If APPLY_FIXES is used, defines if the fixes are directly committed (commit)
   # or posted in a PR (pull_request)
   APPLY_FIXES_MODE: pull_request
-  APPLY_FIXES_IF_PR: 'true'
-  APPLY_FIXES_IF_COMMIT: 'false'
+  APPLY_FIXES_IF_PR: 'false'
+  APPLY_FIXES_IF_COMMIT: 'true'
   ENABLE: MARKDOWN,YAML,TERRAFORM
   DISABLE_LINTERS: YAML_V8R,YAML_PRETTIER,MARKDOWN_MARKDOWN_TABLE_FORMATTER,TERRAFORM_TERRASCAN,TERRAFORM_TFLINT
 
@@ -59,12 +59,12 @@ jobs:
       # Git Checkout
       - name: Checkout Code
         uses: actions/checkout@v5
-        with:
-          # token: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
+        # with:
+        #   token: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
 
-          # If you use VALIDATE_ALL_CODEBASE = true, you can remove this line to
-          # improve performance
-          fetch-depth: 0
+        #   # If you use VALIDATE_ALL_CODEBASE = true, you can remove this line to
+        #   # improve performance
+        #   fetch-depth: 0
 
       # MegaLinter
       - name: MegaLinter
@@ -87,6 +87,7 @@ jobs:
           MARKDOWN_MARKDOWNLINT_AUTO_FIX: true
           TERRAFORM_TERRAFORM_FMT_AUTO_FIX: true
           YAML_YAMLLINT_AUTO_FIX: true
+          FLAVOR_SUGGESTIONS: false
           #
           # To validate only diff with main, set to:
           # VALIDATE_ALL_CODEBASE: >-
@@ -118,6 +119,15 @@ jobs:
           path: |
             megalinter-reports
             mega-linter.log
+      # Debugging info
+      - name: Debug env vars
+        if: always()
+        run: |
+          echo "APPLY_FIXES_IF=${APPLY_FIXES_IF}"
+          echo "APPLY_FIXES_IF_PR=${APPLY_FIXES_IF_PR}"
+          echo "has_updated_sources=${{ steps.ml.outputs.has_updated_sources }}"
+          echo "github.event_name=${{ steps.ml.outputs.github.event_name }}"
+          echo "github.event.pull_request.head.repo.full_name=${{ steps.ml.outputs.github.event.pull_request.head.repo.full_name }}"
 
       # Set APPLY_FIXES_IF var for use in future steps
       - name: Set APPLY_FIXES_IF var
@@ -154,9 +164,9 @@ jobs:
         id: cpr
         if: env.APPLY_FIXES_IF_PR == 'true'
         with:
-          token: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
-          commit-message: "[MegaLinter] Apply linters automatic fixes"
-          title: "[MegaLinter] Apply linters automatic fixes"
+          # token: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
+          commit-message: "[DEMO] Apply linters automatic fixes"
+          title: "[DEMO] Apply linters automatic fixes"
           labels: automated-pr, megalinter, bot-pr
           body: |
             This PR has been automatically created by MegaLinter to apply
@@ -169,22 +179,22 @@ jobs:
           echo "PR Number - ${{ steps.cpr.outputs.pull-request-number }}"
           echo "PR URL - ${{ steps.cpr.outputs.pull-request-url }}"
 
-      # # Push new commit if applicable
-      # # (for now works only on PR from same repository, not from forks)
-      # - name: Prepare commit
-      #   if: env.APPLY_FIXES_IF_COMMIT == 'true'
-      #   run: sudo chown -Rc $UID .git/
+      # Push new commit if applicable
+      # (for now works only on PR from same repository, not from forks)
+      - name: Prepare commit
+        if: env.APPLY_FIXES_IF_COMMIT == 'true'
+        run: sudo chown -Rc $UID .git/
 
-      # - name: Commit and push applied linter fixes
-      #   uses: stefanzweifel/git-auto-commit-action@v7
-      #   if: env.APPLY_FIXES_IF_COMMIT == 'true'
-      #   with:
-      #     branch: >-
-      #       ${{
-      #         github.event.pull_request.head.ref ||
-      #         github.head_ref ||
-      #         github.ref
-      #       }}
-      #     commit_message: "[MegaLinter] Apply linters fixes"
-      #     commit_user_name: megalinter-bot
-      #     commit_user_email: 129584137+megalinter-bot@users.noreply.github.com
+      - name: Commit and push applied linter fixes
+        uses: stefanzweifel/git-auto-commit-action@v7
+        if: env.APPLY_FIXES_IF_COMMIT == 'true'
+        with:
+          branch: >-
+            ${{
+              github.event.pull_request.head.ref ||
+              github.head_ref ||
+              github.ref
+            }}
+          commit_message: "Apply linters fixes"
+          commit_user_name: socx-bot
+          commit_user_email: 129584137+socx-bot@users.noreply.github.com
