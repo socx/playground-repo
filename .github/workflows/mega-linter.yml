@@ -163,6 +163,10 @@ jobs:
           echo "github.event_name=${{ github.event_name }}"
           echo "github.event.pull_request.head.repo.full_name=${{ github.event.pull_request.head.repo.full_name }}"
 
+      - name: Fix permissions for git
+        if: env.APPLY_FIXES_IF_COMMIT == 'true' || env.APPLY_FIXES_IF_PR == 'true'
+        run: sudo chown -Rc $UID:$UID .
+
       - name: Prepare PR creation
         if: always()
         run: sudo chown -Rc $UID .git/
