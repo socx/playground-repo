@@ -155,7 +155,7 @@ jobs:
         run: |
           echo "APPLY_FIXES_IF_COMMIT=${APPLY_FIXES_IF_COMMIT}"
           echo "APPLY_FIXES_IF_PR=${APPLY_FIXES_IF_PR}"
-          echo "env.APPLY_FIXES_IF=${env.env.APPLY_FIXES_IF}"
+          echo "env.APPLY_FIXES_IF=${env.APPLY_FIXES_IF}"
           echo "env.APPLY_FIXES_MODE=${env.APPLY_FIXES_MODE}"
           echo "has_updated_sources=${{ steps.ml.outputs.has_updated_sources }}"
           echo "github.event_name=${{ steps.ml.outputs.github.event_name }}"
