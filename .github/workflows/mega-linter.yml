@@ -166,7 +166,7 @@ jobs:
       - name: Create Pull Request with applied fixes
         uses: peter-evans/create-pull-request@v7
         id: cpr
-        if: env.APPLY_FIXES_IF == 'true'
+        if: always()
         with:
           # token: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
           commit-message: "[DEMO] Apply linters automatic fixes"
@@ -178,7 +178,7 @@ jobs:
             Please review the changes and merge if they look good.
 
       - name: Create PR output
-        if: env.APPLY_FIXES_IF == 'true'
+        if: always()
         run: |
           echo "PR Number - ${{ steps.cpr.outputs.pull-request-number }}"
           echo "PR URL - ${{ steps.cpr.outputs.pull-request-url }}"
