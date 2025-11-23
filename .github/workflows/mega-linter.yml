@@ -163,6 +163,10 @@ jobs:
           echo "github.event_name=${{ steps.ml.outputs.github.event_name }}"
           echo "github.event.pull_request.head.repo.full_name=${{ steps.ml.outputs.github.event.pull_request.head.repo.full_name }}"
 
+      - name: Prepare PR creation
+        if: always()
+        run: sudo chown -Rc $UID .git/
+
       # Create pull request if applicable
       # (for now works only on PR from same repository, not from forks)
       - name: Create Pull Request with applied fixes
