@@ -160,12 +160,16 @@ jobs:
           echo "env.APPLY_FIXES_IF=${{ env.APPLY_FIXES_IF }}"
           echo "env.APPLY_FIXES_MODE=${{ env.APPLY_FIXES_MODE }}"
           echo "has_updated_sources=${{ steps.ml.outputs.has_updated_sources }}"
-          echo "github.event_name=${{ steps.ml.outputs.github.event_name }}"
-          echo "github.event.pull_request.head.repo.full_name=${{ steps.ml.outputs.github.event.pull_request.head.repo.full_name }}"
+          echo "github.event_name=${{ github.event_name }}"
+          echo "github.event.pull_request.head.repo.full_name=${{ github.event.pull_request.head.repo.full_name }}"
 
       - name: Prepare PR creation
         if: always()
         run: sudo chown -Rc $UID .git/
+
+      - name: Remove MegaLinter reports before commit
+        if: env.APPLY_FIXES_IF_COMMIT == 'true' || env.APPLY_FIXES_IF_PR == 'true'
+        run: rm -rf megalinter-reports
 
       # Create pull request if applicable
       # (for now works only on PR from same repository, not from forks)
