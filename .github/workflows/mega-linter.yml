@@ -164,7 +164,7 @@ jobs:
           echo "github.event.pull_request.head.repo.full_name=${{ github.event.pull_request.head.repo.full_name }}"
 
       - name: Fix permissions for git
-        if: env.APPLY_FIXES_IF_COMMIT == 'true' || env.APPLY_FIXES_IF_PR == 'true'
+        if: always()
         run: sudo chown -Rc $UID:$UID .
 
       - name: Prepare PR creation
@@ -172,7 +172,7 @@ jobs:
         run: sudo chown -Rc $UID .git/
 
       - name: Remove MegaLinter reports before commit
-        if: env.APPLY_FIXES_IF_COMMIT == 'true' || env.APPLY_FIXES_IF_PR == 'true'
+        if: always()
         run: rm -rf megalinter-reports
 
       # Create pull request if applicable
