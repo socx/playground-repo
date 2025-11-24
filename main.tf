@@ -2,16 +2,16 @@ variable "region" {
   type = map(any)
   default = {
     "uk1" = {
-        "region" = "uksouth",
+      "region" = "uksouth",
     },
     "uk2" = {
       "region" = "ukwest",
     },
     "us" = {
-            "region" = "eastus",
+      "region" = "eastus",
     }
     "us2" = {
-                  "region" = "eastus2",
+      "region" = "eastus2",
     }
   }
 }
