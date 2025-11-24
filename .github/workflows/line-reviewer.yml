@@ -25,60 +25,30 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # ---------------- YAML ----------------
-      - name: Install yamllint
-        run: sudo apt-get install -y yamllint
-
-      - name: Run yamllint
+      - name: Install dependencies
         run: |
-          yamllint . --format parsable > yamllint-report.txt || true
+          sudo apt-get update
+          sudo apt-get install -y yamllint
+          npm install -g markdownlint-cli
+          curl -sL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh | sh -s -- -b /usr/local/bin
 
-      - name: Annotate PR with yamllint results
-        if: always()
-        uses: reviewdog/action-lint@v1
-        with:
-          name: yamllint
-          reporter: github-pr-review
-          filter_mode: file
-          fail_on_error: false
-          tool_name: yamllint
-          # reviewdog expects output on stdin
-          run: cat yamllint-report.txt
+      # ---------------- YAML ----------------
+      - name: Run yamllint with reviewdog
+        run: |
+          yamllint . --format parsable \
+            | reviewdog -f=yamllint -name=yamllint -reporter=github-pr-review -filter-mode=diff -fail-on-error=false
 
       # ---------------- Terraform ----------------
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Run terraform fmt check
+      - name: Run terraform fmt with reviewdog
         run: |
-          terraform fmt -check -diff -recursive > tf-fmt-report.txt || true
-
-      - name: Annotate PR with terraform fmt results
-        if: always()
-        uses: reviewdog/action-lint@v1
-        with:
-          name: terraform-fmt
-          reporter: github-pr-review
-          filter_mode: file
-          fail_on_error: false
-          tool_name: terraform-fmt
-          run: cat tf-fmt-report.txt
+          terraform fmt -check -diff -recursive \
+            | reviewdog -f=diff -name=terraform-fmt -reporter=github-pr-review -filter-mode=diff -fail-on-error=false
 
       # ---------------- Markdown ----------------
-      - name: Install markdownlint-cli
-        run: npm install -g markdownlint-cli
-
-      - name: Run markdownlint
+      - name: Run markdownlint with reviewdog
         run: |
-          markdownlint '**/*.md' --json > md-lint-report.json || true
-
-      - name: Annotate PR with markdownlint results
-        if: always()
-        uses: reviewdog/action-lint@v1
-        with:
-          name: markdownlint
-          reporter: github-pr-review
-          filter_mode: file
-          fail_on_error: false
-          tool_name: markdownlint
-          run: cat md-lint-report.json
+          markdownlint '**/*.md' \
+            | reviewdog -f=markdownlint -name=markdownlint -reporter=github-pr-review -filter-mode=diff -fail-on-error=false
