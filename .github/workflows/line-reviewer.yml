@@ -36,7 +36,7 @@ jobs:
       - name: Run yamllint with reviewdog
         run: |
           yamllint . --format parsable \
-            | reviewdog -f=yamllint -name=yamllint -reporter=github-pr-review -filter-mode=diff -fail-on-error=false
+            | reviewdog -f=yamllint -name=yamllint -reporter=github-pr-review -filter-mode=added -fail-on-error=false
 
       # ---------------- Terraform ----------------
       - name: Setup Terraform
@@ -45,10 +45,10 @@ jobs:
       - name: Run terraform fmt with reviewdog
         run: |
           terraform fmt -check -diff -recursive \
-            | reviewdog -f=diff -name=terraform-fmt -reporter=github-pr-review -filter-mode=diff -fail-on-error=false
+            | reviewdog -f=diff -name=terraform-fmt -reporter=github-pr-review -filter-mode=added -fail-on-error=false
 
       # ---------------- Markdown ----------------
       - name: Run markdownlint with reviewdog
         run: |
           markdownlint '**/*.md' \
-            | reviewdog -f=markdownlint -name=markdownlint -reporter=github-pr-review -filter-mode=diff -fail-on-error=false
+            | reviewdog -f=markdownlint -name=markdownlint -reporter=github-pr-review -filter-mode=added -fail-on-error=false
