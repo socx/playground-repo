@@ -43,7 +43,7 @@ jobs:
 
       # -------- YAML Auto-fix and Suggestion --------
       - name: Prettier fix YAML
-        run: npx prettier --write "**/*.yml" "**/*.yaml"
+        run: npx prettier --write "**/*.yml"
 
       - name: Suggest YAML fixes
         uses: reviewdog/action-suggester@v1
