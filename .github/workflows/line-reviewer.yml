@@ -43,15 +43,21 @@ jobs:
 
       # ---------------- YAML ----------------
       - name: Run yamllint with reviewdog
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           yamllint . --format parsable \
             | reviewdog -f=yamllint -name=yamllint -reporter=github-pr-review -filter-mode=added -fail-on-error=false
 
       # ---------------- Terraform ----------------
       - name: Setup Terraform
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         uses: hashicorp/setup-terraform@v3
 
       - name: Run terraform fmt with reviewdog
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           terraform fmt -check -diff -recursive \
             | reviewdog -f=diff -name=terraform-fmt -reporter=github-pr-review -filter-mode=added -fail-on-error=false
