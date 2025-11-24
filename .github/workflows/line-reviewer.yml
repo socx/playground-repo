@@ -1,0 +1,84 @@
+name: Lint Review
+
+on:
+  push:
+    branches:
+      - test-branch
+      - main
+    paths:
+      - '**/*.yaml'
+      - '**/*.yml'
+      - '**/*.tf'
+      - '**/*.md'
+  pull_request:
+    paths:
+      - '**/*.yaml'
+      - '**/*.yml'
+      - '**/*.tf'
+      - '**/*.md'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ---------------- YAML ----------------
+      - name: Install yamllint
+        run: sudo apt-get install -y yamllint
+
+      - name: Run yamllint
+        run: |
+          yamllint . --format parsable > yamllint-report.txt || true
+
+      - name: Annotate PR with yamllint results
+        if: always()
+        uses: reviewdog/action-lint@v1
+        with:
+          name: yamllint
+          reporter: github-pr-review
+          filter_mode: file
+          fail_on_error: false
+          tool_name: yamllint
+          # reviewdog expects output on stdin
+          run: cat yamllint-report.txt
+
+      # ---------------- Terraform ----------------
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Run terraform fmt check
+        run: |
+          terraform fmt -check -diff -recursive > tf-fmt-report.txt || true
+
+      - name: Annotate PR with terraform fmt results
+        if: always()
+        uses: reviewdog/action-lint@v1
+        with:
+          name: terraform-fmt
+          reporter: github-pr-review
+          filter_mode: file
+          fail_on_error: false
+          tool_name: terraform-fmt
+          run: cat tf-fmt-report.txt
+
+      # ---------------- Markdown ----------------
+      - name: Install markdownlint-cli
+        run: npm install -g markdownlint-cli
+
+      - name: Run markdownlint
+        run: |
+          markdownlint '**/*.md' --json > md-lint-report.json || true
+
+      - name: Annotate PR with markdownlint results
+        if: always()
+        uses: reviewdog/action-lint@v1
+        with:
+          name: markdownlint
+          reporter: github-pr-review
+          filter_mode: file
+          fail_on_error: false
+          tool_name: markdownlint
+          run: cat md-lint-report.json
