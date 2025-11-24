@@ -38,32 +38,38 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y yamllint
-          npm install -g markdownlint-cli
+          npm install -g markdownlint-cli prettier
           curl -sL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh | sh -s -- -b /usr/local/bin
 
-      # ---------------- YAML ----------------
-      - name: Run yamllint with reviewdog
-        env:
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          yamllint . --format parsable \
-            | reviewdog -f=yamllint -name=yamllint -reporter=github-pr-review -filter-mode=added -fail-on-error=false
+      # -------- YAML Auto-fix and Suggestion --------
+      - name: Prettier fix YAML
+        run: npx prettier --write "**/*.yml" "**/*.yaml"
 
-      # ---------------- Terraform ----------------
-      - name: Setup Terraform
-        env:
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        uses: hashicorp/setup-terraform@v3
+      - name: Suggest YAML fixes
+        uses: reviewdog/action-suggester@v1
+        with:
+          tool_name: prettier (yaml)
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run terraform fmt with reviewdog
-        env:
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          terraform fmt -check -diff -recursive \
-            | reviewdog -f=diff -name=terraform-fmt -reporter=github-pr-review -filter-mode=added -fail-on-error=false
+      # -------- Terraform Auto-fix and Suggestion --------
+      - name: Terraform fmt fix
+        run: terraform fmt -recursive
 
-      # ---------------- Markdown ----------------
-      - name: Run markdownlint with reviewdog
-        run: |
-          markdownlint '**/*.md' \
-            | reviewdog -f=markdownlint -name=markdownlint -reporter=github-pr-review -filter-mode=added -fail-on-error=false
+      - name: Suggest Terraform fixes
+        uses: reviewdog/action-suggester@v1
+        with:
+          tool_name: terraform fmt
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      # -------- Markdown Auto-fix and Suggestion --------
+      - name: Markdownlint fix
+        run: npx markdownlint --fix "**/*.md"
+
+      - name: Suggest Markdown fixes
+        uses: reviewdog/action-suggester@v1
+        with:
+          tool_name: markdownlint
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      # --------- (Optional) Lint and Comment Only ---------
+      # You can keep your original reviewdog steps for comments if you want.
