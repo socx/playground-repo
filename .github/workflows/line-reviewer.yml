@@ -52,7 +52,11 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       # -------- Terraform Auto-fix and Suggestion --------
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
       - name: Terraform fmt fix
+        if: always()
         run: terraform fmt -recursive
 
       - name: Suggest Terraform fixes
@@ -63,6 +67,7 @@ jobs:
 
       # -------- Markdown Auto-fix and Suggestion --------
       - name: Markdownlint fix
+        if: always()
         run: npx markdownlint --fix "**/*.md"
 
       - name: Suggest Markdown fixes
