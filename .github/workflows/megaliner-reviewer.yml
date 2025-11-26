@@ -29,7 +29,7 @@ jobs:
       # Run MegaLinter in report-only mode (does not commit or push fixes)
       - name: Run MegaLinter
         id: ml
-        uses: oxsecurity/megalinter/flavors/terraform@v9.1.0
+        uses: oxsecurity/megalinter@v9.1.0
         env:
           ENABLE: MARKDOWN,YAML,TERRAFORM
           # Enable auto-fix for supported linters (suggestions)

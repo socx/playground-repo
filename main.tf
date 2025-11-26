@@ -5,13 +5,13 @@ variable "region" {
         "region" = "uksouth",
     },
     "uk2" = {
-      "region" = "ukwest",
+          "region" = "ukwest",
     },
     "us" = {
             "region" = "eastus",
     }
     "us2" = {
-                  "region" = "eastus2",
+                "region" = "eastus2",
     }
   }
 }
