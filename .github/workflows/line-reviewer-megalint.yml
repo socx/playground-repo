@@ -23,7 +23,7 @@ jobs:
 
       # Run MegaLinter in "report only" mode so it produces fix suggestions
       - name: Run MegaLinter
-        uses: oxsecurity/megalinter/flavors/terraform@v9.1.0 
+        uses: oxsecurity/megalinter/flavors/terraform@v9.1.0
         env:
           # Enable all linters or restrict to YAML/Terraform/Markdown
           ENABLE: YAML,TERRAFORM,MARKDOWN
@@ -65,3 +65,32 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+      # --------- Lint and Comment Only for errors not easily fixable -------
+      # ---------------- YAML ------------------------------------------------
+      - name: Run yamllint with reviewdog
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          yamllint . --format parsable \
+            | reviewdog -f=yamllint -name=yamllint -reporter=github-pr-review -filter-mode=added -fail-on-error=false
+
+      # ---------------- Terraform ----------------
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Run terraform fmt with reviewdog
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          terraform fmt -check -diff -recursive \
+            | reviewdog -f=diff -name=terraform-fmt -reporter=github-pr-review -filter-mode=added -fail-on-error=false
+
+      # ---------------- Markdown ----------------
+      - name: Run markdownlint with reviewdog
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          markdownlint '**/*.md' \
+            | reviewdog -f=markdownlint -name=markdownlint -reporter=github-pr-review -filter-mode=added -fail-on-error=false
