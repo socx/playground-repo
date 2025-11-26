@@ -57,7 +57,7 @@ jobs:
       # Run reviewdog on MegaLinter SARIF output for comments and suggestions
       - name: Run reviewdog with MegaLinter SARIF
         if: always()
-        uses: reviewdog/action-reviewdog@v5
+        uses: reviewdog/reviewdog@v5
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
