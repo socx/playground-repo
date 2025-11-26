@@ -44,11 +44,6 @@ jobs:
           REPORTERS: github_pr_review,github_suggestions,SARIF
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # DEBUG: List MegaLinter report files for debugging
-      - name: List MegaLinter report files
-        if: always()
-        run: ls -l megalinter-reports || true
-
       # Upload MegaLinter reports as artifacts (optional)
       - name: Archive MegaLinter reports
         if: always()
@@ -58,6 +53,11 @@ jobs:
           path: |
             megalinter-reports
             mega-linter.log
+
+      # DEBUG: List MegaLinter report files for debugging
+      - name: List MegaLinter report files
+        if: always()
+        run: ls -l megalinter-reports || true
 
       # Run reviewdog on MegaLinter SARIF output for comments and suggestions
       - name: Install reviewdog
