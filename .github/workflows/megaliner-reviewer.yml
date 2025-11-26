@@ -55,15 +55,16 @@ jobs:
             mega-linter.log
 
       # Run reviewdog on MegaLinter SARIF output for comments and suggestions
+      - name: Install reviewdog
+        run: |
+          curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh | sh -s -- -b /usr/local/bin
+
       - name: Run reviewdog with MegaLinter SARIF
         if: always()
-        uses: reviewdog/reviewdog@v0.21.0
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          reporter: github-pr-review
-          tool_name: megalinter
-          format: sarif
-          sarif_file: megalinter-reports/megalinter-report.sarif
+        run: |
+          reviewdog -runners=github-pr-review -name="megalinter" -f=sarif -reporter=github-pr-review -fail-on-error=false -level=warning -sarif-file=megalinter-reports/megalinter-report.sarif
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Optionally, run reviewdog with diff for suggestions (if fixes were generated)
       - name: Suggest fixes with reviewdog (diff)
