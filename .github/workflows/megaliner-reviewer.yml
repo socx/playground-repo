@@ -57,11 +57,12 @@ jobs:
       # Run reviewdog on MegaLinter SARIF output for comments and suggestions
       - name: Run reviewdog with MegaLinter SARIF
         if: always()
-        uses: reviewdog/action-sarif@v1
+        uses: reviewdog/action-reviewdog@v5
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
           tool_name: megalinter
+          format: sarif
           sarif_file: megalinter-reports/megalinter-report.sarif
 
       # Optionally, run reviewdog with diff for suggestions (if fixes were generated)
