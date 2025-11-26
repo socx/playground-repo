@@ -41,7 +41,7 @@ jobs:
           APPLY_FIXES_EVENT: pull_request
           APPLY_FIXES_MODE: no_commit
           # Output format for reviewdog
-          REPORTERS: github_pr_review,github_suggestions
+          REPORTERS: github_pr_review,github_suggestions,SARIF
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Upload MegaLinter reports as artifacts (optional)
