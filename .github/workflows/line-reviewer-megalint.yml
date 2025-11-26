@@ -33,6 +33,10 @@ jobs:
           REPORT_OUTPUT_FOLDER: megalinter-reports
 
       # Use reviewdog/action-suggester to comment suggested fixes on PR
+      - name: Fix permissions for git
+        if: always()
+        run: sudo chown -Rc $UID:$UID .
+
       - name: Suggest fixes with reviewdog
         if: always()
         uses: reviewdog/action-suggester@v1
