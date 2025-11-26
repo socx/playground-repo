@@ -1,0 +1,67 @@
+name: MegaLinter with Reviewdog Suggester
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  megalinter:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Run MegaLinter in "report only" mode so it produces fix suggestions
+      - name: Run MegaLinter
+        uses: oxsecurity/megalinter/flavors/terraform@v9.1.0 
+        env:
+          # Enable all linters or restrict to YAML/Terraform/Markdown
+          ENABLE: YAML,TERRAFORM,MARKDOWN
+          # Generate fix files
+          APPLY_FIXES: all
+          APPLY_FIXES_EVENT: pull_request
+          APPLY_FIXES_MODE: no_commit
+          REPORTERS: github_pr_review,github_suggestions,SARIF
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Save reports to workspace
+          REPORT_OUTPUT_FOLDER: megalinter-reports
+          FLAVOR_SUGGESTIONS: false
+
+      # Upload MegaLinter reports as artifacts (optional)
+      - name: Archive MegaLinter reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: megalinter-reports
+          path: |
+            megalinter-reports
+            mega-linter.log
+
+      # Debug: List MegaLinter report files
+      - name: List MegaLinter report files
+        if: always()
+        run: ls -l megalinter-reports || true
+
+      # Use reviewdog/action-suggester to comment suggested fixes on PR
+      - name: Fix permissions for git
+        if: always()
+        run: sudo chown -Rc $UID:$UID .
+
+      - name: Suggest fixes with reviewdog
+        if: always()
+        uses: reviewdog/action-suggester@v1
+        with:
+          tool_name: megalinter
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
