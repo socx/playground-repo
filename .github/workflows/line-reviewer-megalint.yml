@@ -28,9 +28,27 @@ jobs:
           # Enable all linters or restrict to YAML/Terraform/Markdown
           ENABLE: YAML,TERRAFORM,MARKDOWN
           # Generate fix files but don't apply them automatically
-          APPLY_FIXES: none
+          APPLY_FIXES: all
+          APPLY_FIXES_EVENT: pull_request
+          APPLY_FIXES_MODE: no_commit
+          REPORTERS: github_pr_review,github_suggestions,SARIF
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Save reports to workspace
           REPORT_OUTPUT_FOLDER: megalinter-reports
+
+      # Upload MegaLinter reports as artifacts (optional)
+      - name: Archive MegaLinter reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: megalinter-reports
+          path: |
+            megalinter-reports
+            mega-linter.log
+
+      # Debug: List MegaLinter report files
+      - name: List MegaLinter report files
+        run: ls -l megalinter-reports || true
 
       # Use reviewdog/action-suggester to comment suggested fixes on PR
       - name: Fix permissions for git
