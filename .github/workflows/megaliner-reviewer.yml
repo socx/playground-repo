@@ -1,0 +1,82 @@
+name: MegaLinter Review
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  megalinter:
+    runs-on: ubuntu-latest
+    name: MegaLinter with Reviewdog Suggestions
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Run MegaLinter in report-only mode (does not commit or push fixes)
+      - name: Run MegaLinter
+        id: ml
+        uses: oxsecurity/megalinter@v9.1.0
+        env:
+          ENABLE: MARKDOWN,YAML,TERRAFORM
+          # Enable auto-fix for supported linters (suggestions)
+          MARKDOWN_MARKDOWNLINT_AUTO_FIX: true
+          YAML_YAMLLINT_AUTO_FIX: true
+          TERRAFORM_TERRAFORM_FMT_AUTO_FIX: true
+          # Do not commit or push fixes, just generate them for reviewdog
+          APPLY_FIXES: all
+          APPLY_FIXES_EVENT: pull_request
+          APPLY_FIXES_MODE: no_commit
+          # Output format for reviewdog
+          REPORTERS: github_pr_review,github_suggestions,SARIF
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Upload MegaLinter reports as artifacts (optional)
+      - name: Archive MegaLinter reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: megalinter-reports
+          path: |
+            megalinter-reports
+            mega-linter.log
+
+      # DEBUG: List MegaLinter report files for debugging
+      - name: List MegaLinter report files
+        if: always()
+        run: ls -l megalinter-reports || true
+
+      # Run reviewdog on MegaLinter SARIF output for comments and suggestions
+      - name: Install reviewdog
+        if: always()
+        run: |
+          curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh | sh -s -- -b /usr/local/bin
+
+      - name: Run reviewdog with MegaLinter SARIF
+        if: always()
+        run: |
+          if [ -f "megalinter-reports/megalinter-report.sarif" ]; then
+            cat megalinter-reports/megalinter-report.sarif | reviewdog -f=sarif -name="megalinter" -reporter=github-pr-review -fail-on-error=false -level=warning
+          else
+            echo "No SARIF report found, skipping reviewdog."
+          fi
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Optionally, run reviewdog with diff for suggestions (if fixes were generated)
+      - name: Suggest fixes with reviewdog (diff)
+        if: always()
+        run: |
+          if [ -f "megalinter-reports/fix.diff" ]; then
+            cat megalinter-reports/fix.diff | reviewdog -f=diff -name="megalinter-fix" -reporter=github-pr-suggest -filter-mode=added -fail-on-error=false
+          fi
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
