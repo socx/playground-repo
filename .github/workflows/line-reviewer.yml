@@ -1,15 +1,6 @@
 name: Lint Review
 
 on:
-  push:
-    branches:
-      - test-branch
-      - main
-    paths:
-      - '**/*.yaml'
-      - '**/*.yml'
-      - '**/*.tf'
-      - '**/*.md'
   pull_request:
     paths:
       - '**/*.yaml'
