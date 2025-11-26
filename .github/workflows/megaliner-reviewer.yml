@@ -1,4 +1,4 @@
-name: MegaLinter Review
+name: MegaLinter & ReviewDog
 
 on:
   pull_request:
