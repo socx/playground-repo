@@ -12,6 +12,8 @@ Some text
 multiple consecutive blank spaces between this line of text
 
 
+
+
 and this next line of text. (MD012: Multiple consecutive blank lines)
 
 Not a clickable link: `https://www.example.com` (MD034: Bare URL used)

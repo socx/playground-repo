@@ -83,7 +83,7 @@ jobs:
           # main. Override with true if you always want to lint all sources
           #
           # To validate the entire codebase, set to:
-          VALIDATE_ALL_CODEBASE: true
+          VALIDATE_ALL_CODEBASE: false
           # Enable auto-fixes
           MARKDOWN_MARKDOWNLINT_AUTO_FIX: true
           TERRAFORM_TERRAFORM_FMT_AUTO_FIX: true
